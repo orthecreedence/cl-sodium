@@ -12,7 +12,7 @@
   (unless (cffi:foreign-symbol-pointer "sodium_init")
     (define-foreign-library libsodium
       (:darwin (:or "libsodium.dylib"))
-      (:unix (:or "libsodium"))
+      (:unix (:or "libsodium.so"))
       (:windows (:or "libsodium-10.dll"
                      "libsodium.dll"))
       (t (:default "libsodium")))
