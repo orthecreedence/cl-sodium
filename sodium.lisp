@@ -19,3 +19,5 @@
     (unless (foreign-library-loaded-p 'libsodium)
       (use-foreign-library libsodium))))
 
+(defmacro define-string (name value)
+  `(alexandria:define-constant ,name ,value :test #'string=))
