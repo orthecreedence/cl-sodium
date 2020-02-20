@@ -15,5 +15,6 @@
 (make-accessors #.(sodium::lispify "crypto_generichash_blake2b_state" 'classname))
 (make-accessors #.(sodium::lispify "crypto_hash_sha256_state" 'classname))
 (make-accessors #.(sodium::lispify "crypto_hash_sha512_state" 'classname))
-(make-accessors #.(sodium::lispify "crypto_onetimeauth_poly1305_implementation" 'classname))
+(make-accessors #.(sodium::lispify "crypto_onetimeauth_poly1305_state" 'classname))
+(make-accessors #.(sodium::lispify "crypto_sign_ed25519ph_state" 'classname))
 (make-accessors #.(sodium::lispify "randombytes_implementation" 'classname))

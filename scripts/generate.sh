@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # This script can be used to regenerate the bindings.lisp file using
@@ -10,6 +10,7 @@ swig -cffi -module bindings -noswig-lisp -o bindings.lisp scripts/bindings.i
 # well done, swig. once again, i'm left to clean up your mess
 ASN1_TYPE_CONSTRUCTED_VAL="`grep ASN1_TYPE_CONSTRUCTED bindings.lisp | head -1 | sed 's|.*#\.\((cl:ash[^)]\+)\).*|\1|' `"
 sed -i "s|(cl:logior \([0-9]\+\) ASN1_TYPE_CONSTRUCTED)|(cl:logior \1 $ASN1_TYPE_CONSTRUCTED_VAL)|g" bindings.lisp
+perl -i.bak -pe 's/^\(cl:defconstant /(define-string / if /"\)$/;' bindings.lisp
 
 # ------------------------------------------------------------------------------
 # make our exports
