@@ -43,6 +43,9 @@ swig "-I$SODIUM_HEADERS" -cffi -module bindings -noswig-lisp -o bindings.lisp "$
 ASN1_TYPE_CONSTRUCTED_VAL="`grep ASN1_TYPE_CONSTRUCTED bindings.lisp | head -1 | sed 's|.*#\.\((cl:ash[^)]\+)\).*|\1|' `"
 sed -i "s|(cl:logior \([0-9]\+\) ASN1_TYPE_CONSTRUCTED)|(cl:logior \1 $ASN1_TYPE_CONSTRUCTED_VAL)|g" bindings.lisp
 perl -i.bak -pe 's/^\(cl:defconstant /(define-string / if /"\)$/;' bindings.lisp
+# Fix integers with a length suffix. Only convert an integer followed by a space, end-of-line, or close-paren
+# to avoid accidentally clobbering some integer-looking value.
+sed -E -i -e 's/( -?[0-9]+)[UulL]( |\)|$)/\1\2/' bindings.lisp
 
 # ------------------------------------------------------------------------------
 # make our exports
