@@ -1,3 +1,9 @@
+/* NOTE: This file is used to generate bindings only when the
+ * sodium.h header is present. If you are building against a
+ * non-ancient version (0.1 or later) of libsodium, this is not
+ * the file you want. See scripts/generate.sh and the generated
+ * scripts/bindings.gen.i file.
+ */
 %module bindings
 
 %feature("intern_function", "lispify");
