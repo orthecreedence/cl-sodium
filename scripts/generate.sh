@@ -15,7 +15,28 @@ if [ ! -f "$TEST_HEADER" ]; then
 	exit 1
 fi
 
-swig "-I$SODIUM_HEADERS" -cffi -module bindings -noswig-lisp -o bindings.lisp scripts/bindings.i
+if [ -f "$SODIUM_HEADERS/sodium.h" ]; then
+	BINDING_FILE=scripts/bindings.gen.i
+
+	cat >"$BINDING_FILE" << EOF
+%module bindings
+
+%feature("intern_function", "lispify");
+
+%insert("lisphead") %{
+(in-package :sodium)
+%}
+
+# This is necessary to fix an ordering issue.
+%include "sodium/export.h"
+EOF
+	cat "$SODIUM_HEADERS/sodium.h" >> "$BINDING_FILE"
+	sed -i -e 's/# *include/%include/' "$BINDING_FILE"
+else
+	BINDING_FILE=scripts/bindings.i
+fi
+
+swig "-I$SODIUM_HEADERS" -cffi -module bindings -noswig-lisp -o bindings.lisp "$BINDING_FILE"
 
 # well done, swig. once again, i'm left to clean up your mess
 ASN1_TYPE_CONSTRUCTED_VAL="`grep ASN1_TYPE_CONSTRUCTED bindings.lisp | head -1 | sed 's|.*#\.\((cl:ash[^)]\+)\).*|\1|' `"
