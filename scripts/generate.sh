@@ -27,8 +27,9 @@ if [ -f "$SODIUM_HEADERS/sodium.h" ]; then
 (in-package :sodium)
 %}
 
-# This is necessary to fix an ordering issue.
+# These are necessary to fix ordering issues.
 %include "sodium/export.h"
+%include "sodium/crypto_stream_chacha20.h"
 EOF
 	cat "$SODIUM_HEADERS/sodium.h" >> "$BINDING_FILE"
 	sed -i -e 's/# *include/%include/' "$BINDING_FILE"
