@@ -15,12 +15,37 @@ if [ ! -f "$TEST_HEADER" ]; then
 	exit 1
 fi
 
-swig "-I$SODIUM_HEADERS" -cffi -module bindings -noswig-lisp -o bindings.lisp scripts/bindings.i
+if [ -f "$SODIUM_HEADERS/sodium.h" ]; then
+	BINDING_FILE=scripts/bindings.gen.i
+
+	cat >"$BINDING_FILE" << EOF
+%module bindings
+
+%feature("intern_function", "lispify");
+
+%insert("lisphead") %{
+(in-package :sodium)
+%}
+
+# These are necessary to fix ordering issues.
+%include "sodium/export.h"
+%include "sodium/crypto_stream_chacha20.h"
+EOF
+	cat "$SODIUM_HEADERS/sodium.h" >> "$BINDING_FILE"
+	sed -i -e 's/# *include/%include/' "$BINDING_FILE"
+else
+	BINDING_FILE=scripts/bindings.i
+fi
+
+swig "-I$SODIUM_HEADERS" -cffi -module bindings -noswig-lisp -o bindings.lisp "$BINDING_FILE"
 
 # well done, swig. once again, i'm left to clean up your mess
 ASN1_TYPE_CONSTRUCTED_VAL="`grep ASN1_TYPE_CONSTRUCTED bindings.lisp | head -1 | sed 's|.*#\.\((cl:ash[^)]\+)\).*|\1|' `"
 sed -i "s|(cl:logior \([0-9]\+\) ASN1_TYPE_CONSTRUCTED)|(cl:logior \1 $ASN1_TYPE_CONSTRUCTED_VAL)|g" bindings.lisp
 perl -i.bak -pe 's/^\(cl:defconstant /(define-string / if /"\)$/;' bindings.lisp
+# Fix integers with a length suffix. Only convert an integer followed by a space, end-of-line, or close-paren
+# to avoid accidentally clobbering some integer-looking value.
+sed -E -i -e 's/( -?[0-9]+)[UulL]( |\)|$)/\1\2/' bindings.lisp
 
 # ------------------------------------------------------------------------------
 # make our exports
